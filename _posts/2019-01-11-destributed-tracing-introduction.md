@@ -1,14 +1,14 @@
 ---
 published: false
 ---
-## Destributed Tracing Introduction
+## Distributed Tracing Introduction
 
 Monolithic service architectures for large backend applications are becoming increasingly rare. The monoliths are being replaced with distributed system architectures, where the backend application is spread out (distributed) in an ecosystem of small and narrowly-focused services. These distributed services communicate with each other over the network to process requests.
 
 
-### What is destributed tracing?
+### What is distributed tracing?
 
-Destributed tracing is a process of collecting, analyzing and showing what happen to a request or transaction across all services ut touches in near realtime. It lets you see the path that a request takes as it travels through a distributed system. You can see the what is really going on with your request and helps with latency processes.
+Distributed tracing is a process of collecting, analyzing and showing what happen to a request or transaction across all services ut touches in near realtime. It lets you see the path that a request takes as it travels through a distributed system. You can see the what is really going on with your request and helps with latency processes.
 
 To have a better understanding let's review few difinitions:
 
