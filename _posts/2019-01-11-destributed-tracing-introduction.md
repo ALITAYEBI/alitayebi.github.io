@@ -3,9 +3,12 @@ published: false
 ---
 ## Destributed Tracing Introduction
 
+Monolithic service architectures for large backend applications are becoming increasingly rare. The monoliths are being replaced with distributed system architectures, where the backend application is spread out (distributed) in an ecosystem of small and narrowly-focused services. These distributed services communicate with each other over the network to process requests.
+
+
 ### What is destributed tracing?
 
-Destributed tracing is a process of collecting and showing transaction graphs in near realtime. It lets you see the path that a request takes as it travels through a distributed system. You can see the what is really going on with your request and helps with latency processes.
+Destributed tracing is a process of collecting, analyzing and showing what happen to a request or transaction across all services ut touches in near realtime. It lets you see the path that a request takes as it travels through a distributed system. You can see the what is really going on with your request and helps with latency processes.
 
 To have a better understanding let's review few difinitions:
 
@@ -17,6 +20,12 @@ And also:
 > * Trace the path of a request as it travels across a complex system
 > * Discover the latency of the components along that path
 > * Know which component in the path is creating a bottleneck    - [NewRelic](https://docs.newrelic.com/docs/apm/distributed-tracing/getting-started/introduction-distributed-tracing#definition)
+
+You can easily find a bunch of other definitions around the net. However, the what almost all of them can agree on is that distributed tracing is fundamentally about tracking and analyzing requests as they bounce around distributed architectures as a whole. This is in contrast to traditional monitoring that focuses on each service as an individual in isolation and where specific request details are lost in favor of aggregate metrics.
+
+I don't want you to get distracted by nuts and bults.So, just keep in mind that distributed tracing is conceptually pretty straightforward: **it’s about understanding how a request is processed as it hops from service to service**.
+
+### Where it's come from?
 
 In monolithic web applications, logging frameworks provide enough capabilities to do a basic root-cause analysis when something fails. A developer just needs to place log statements in the code. Information like "context" (usually "thread") and "timestamp" are automatically added to the log entry, making it easier to understand the execution of a given request and correlate the entries.
 
@@ -51,4 +60,47 @@ This technique is one of the concepts at the core of any modern distributed trac
 
 What sets distributed tracing apart from regular logging is that the data structure that holds tracing data is more specialized, so we can also identify causality. Looking at the log entries above, it's hard to tell if the last step was caused by the previous entry, if they were performed concurrently, or if they share the same caller. Having a dedicated data structure also allows distributed tracing to record not only a message in a single point in time but also the start and end time of a given procedure.
 
-![distributed-trace](https://www.jaegertracing.io/img/trace-detail-ss.png "Logo Title Text 2") 
+![distributed-trace](https://www.jaegertracing.io/img/trace-detail-ss.png "distributed trace") 
+
+### Why You Want Distributed Tracing?
+
+Here are a few of the questions that distributed tracing can answer quickly and easily. That might otherwise be a nightmare to answer in a distributed system architecture:
+
+- **What services did a request pass through?** Both for individual requests and for the distributed architecture as a whole (service maps).
+- **Where are the bottlenecks?** How long did each hop take? Again, distributed tracing answers this for individual requests and helps point out general patterns and intermittent anomalies between services in aggregate.
+- **How much time is lost due to network lag?** during communication between services (as opposed to in-service work)
+- **What occurred in each service for a given request?** tagging service log messages with the given request’s Trace ID allows finding all log messages associated with a particular request across all services it went through (when combined with a log aggregation and search tool).
+
+![What happen to my request?](https://cdn-images-1.medium.com/max/1000/1*iaVQRRi2upK4X-E-WwrWIg.png "What happen to my request") 
+
+Distributed tracing is especially helpful on difficult-to-reproduce or intermittent problems. Without distributed tracing, the info might be lost forever or be so difficult to unearth that you’d never find it. When it’s 3:00 a.m. and an alert is going off, and you’re on-call, being able to use distributed tracing to quickly point to the not-my-service culprit is invaluable. Distributed tracing can often let you go back to bed in a few short minutes or at least point you in the right direction for why the problem is in your service. This saves you hours of guesswork, following red herrings, and painful debugging.
+
+**Distributed tracing is extremely useful even for a single service where upstream and downstream haven’t implemented distributed tracing**. You’ll still be able to answer the question of how much time was spent in your service vs. waiting for outbound calls to complete. If an outbound call is especially slow, then you’ll know where to point the finger when someone asks why their request was laggy.
+
+### Trace Anatomy
+
+In order to discuss the core concepts for how distributed tracing works, we first need to define some common nomenclature and explain the anatomy of a trace. Note that distributed tracing has been around for a long time, so if you research distributed tracing you might find other tools and schemes that use different names. The concepts, however, are usually very similar:
+
+1. A **Trace** covers the entire request across all services it touches. It consists of all the Spans for the request.
+2. A **Span** is a logical chunk of work in a given Trace.
+3. **Spans have parent-child relationships**. This is a very important concept that is easy to miss if you’re new to distributed tracing. Let's highlight a few details:
++ A “child span” has one span that is its “parent.”
++ A “parent span” can have multiple “child spans.”
++ This parent-child relationship allows you to create a “trace tree” out of all the spans for a request.
++ The trace tree always has one span that does not have a parent — this is the **“root span.”**
+
+![Trace Tree?](https://cdn-images-1.medium.com/max/600/1*VO9RZ-wwHUWQDEkNSzf5vA.png) | ![Trace](https://cdn-images-1.medium.com/max/600/1*Yu0bCux_sulHPy6MhT9Ytg.png)
+
+
+### Resources for Implementing Distributed Tracing?
+Search around once you’re ready to implement distributed tracing. You’ll find libraries and tools for distributed tracing in almost any language and stack/framework you want. Here are a few links to get you started:
+
+- [OpenTracing](https://opentracing.io/)
+- [Jaeger](https://www.jaegertracing.io/)
+- [Zipkin](https://zipkin.io/)
+- [OpenCensus](https://opencensus.io)
+- [NewRelic](https://docs.newrelic.com/docs/apm/distributed-tracing)
+
+### The Last Word
+Distributed tracing is critical to operating, maintaining, and debugging services in a distributed systems architecture. Distributed tracing directly translates into providing the best possible experience for consumers and developers alike. It provides deep insight into individual services as well as into how they communicate and work together as a whole. Distributed tracing makes the lives of everyone — from product owners, to prod support, to service developers — much easier and less frustrating.
+
